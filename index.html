@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SiteGen QR</title>
+    <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background: #0f172a; color: #f8fafc; min-height: 100vh; display: flex; flex-direction: column; }
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 1rem 2rem; background: #1e293b; border-bottom: 1px solid #334155; }
+        .logo { font-size: 1.2rem; font-weight: bold; color: #38bdf8; }
+        .nav-links { display: flex; gap: 20px; }
+        .nav-links a { color: #94a3b8; text-decoration: none; font-size: 0.95rem; cursor: pointer; }
+        .nav-links a:hover, .nav-links a.active { color: #38bdf8; }
+        .main-content { flex: 1; display: flex; justify-content: center; align-items: center; padding: 20px; }
+        .container { background: #1e293b; padding: 25px; border-radius: 12px; width: 100%; max-width: 420px; border: 1px solid #334155; box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+        .tabs { display: flex; gap: 6px; margin-bottom: 20px; overflow-x: auto; padding-bottom: 5px; }
+        .tab-btn { background: #0f172a; border: 1px solid #475569; color: #94a3b8; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 0.8rem; white-space: nowrap; }
+        .tab-btn.active { background: #0284c7; color: #fff; border-color: #0284c7; font-weight: 600; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 6px; font-size: 0.85rem; color: #cbd5e1; }
+        input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 0.9rem; }
+        input:focus { outline: none; border-color: #38bdf8; }
+        .generate-btn { width: 100%; padding: 10px; background: #0284c7; border: none; color: #fff; font-weight: 600; border-radius: 6px; cursor: pointer; font-size: 0.95rem; }
+        .generate-btn:hover { background: #0369a1; }
+        .result-box { margin-top: 20px; text-align: center; display: none; }
+        #qrcode { background: #fff; padding: 12px; display: inline-block; border-radius: 6px; margin-bottom: 12px; }
+        #qrcode img { display: block; margin: 0 auto; }
+        .download-btn { display: inline-block; padding: 8px 16px; background: #10b981; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
+        .about-section { display: none; padding: 20px; text-align: center; max-width: 500px; margin: auto; }
+        .about-section h2 { color: #38bdf8; margin-bottom: 15px; }
+        .about-section p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="logo">SiteGen QR</div>
+        <div class="nav-links">
+            <a id="navHome" class="active" onclick="switchPage('home')">Home</a>
+            <a id="navAbout" onclick="switchPage('about')">About</a>
+        </div>
+    </nav>
+    <div class="main-content">
+        <div class="container" id="homePage">
+            <div class="tabs">
+                <button class="tab-btn active" onclick="switchTab('url', this)">Link</button>
+                <button class="tab-btn" onclick="switchTab('whatsapp', this)">WhatsApp</button>
+                <button class="tab-btn" onclick="switchTab('email', this)">Email</button>
+                <button class="tab-btn" onclick="switchTab('phone', this)">Phone</button>
+            </div>
+            <div class="input-group">
+                <label id="inputLabel">Enter URL or Website Link</label>
+                <input type="text" id="userInput" placeholder="https://example.com">
+            </div>
+            <button class="generate-btn" onclick="generateQR()">Generate QR Code</button>
+            <div class="result-box" id="resultBox">
+                <div id="qrcode"></div>
+                <br>
+                <a id="downloadBtn" class="download-btn" download="qrcode.png">Download QR Code</a>
+            </div>
+        </div>
+        <div class="about-section" id="aboutPage">
+            <h2>About SiteGen QR</h2>
+            <p>Welcome to SiteGen QR! Create instant, high-quality QR codes for your links, WhatsApp, emails, and phone numbers easily.</p>
+        </div>
+    </div>
+    <script>
+        let currentType = 'url';
+        function switchPage(page) {
+            if(page === 'home') {
+                document.getElementById('homePage').style.display = 'block';
+                document.getElementById('aboutPage').style.display = 'none';
+                document.getElementById('navHome').classList.add('active');
+                document.getElementById('navAbout').classList.remove('active');
+            } else {
+                document.getElementById('homePage').style.display = 'none';
+                document.getElementById('aboutPage').style.display = 'block';
+                document.getElementById('navAbout').classList.add('active');
+                document.getElementById('navHome').classList.remove('active');
+            }
+        }
+        function switchTab(type, btn) {
+            currentType = type;
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const input = document.getElementById('userInput');
+            const label = document.getElementById('inputLabel');
+            if (type === 'url') {
+                label.innerText = 'Enter URL or Website Link';
+                input.placeholder = 'https://example.com';
+            } else if (type === 'whatsapp') {
+                label.innerText = 'Enter WhatsApp Number (with country code)';
+                input.placeholder = '+8801700000000';
+            } else if (type === 'email') {
+                label.innerText = 'Enter Email Address';
+                input.placeholder = 'example@mail.com';
+            } else if (type === 'phone') {
+                label.innerText = 'Enter Phone Number';
+                input.placeholder = '+8801700000000';
+            }
+            input.value = '';
+            document.getElementById('resultBox').style.display = 'none';
+        }
+        function generateQR() {
+            let val = document.getElementById('userInput').value.trim();
+            if (!val) { alert('Please fill in the input field!'); return; }
+            let finalData = val;
+            if (currentType === 'whatsapp') {
+                let cleanNum = val.replace(/[^0-9]/g, '');
+                finalData = `https://wa.me/${cleanNum}`;
+            } else if (currentType === 'email') {
+                finalData = `mailto:${val}`;
+            } else if (currentType === 'phone') {
+                finalData = `tel:${val}`;
+            }
+            let qr = qrcode(4, 'M');
+            qr.addData(finalData);
+            qr.make();
+            let qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = qr.createHtmlTag(5);
+            let imgElement = qrContainer.querySelector('img');
+            setTimeout(() => {
+                let canvas = document.createElement('canvas');
+                let ctx = canvas.getContext('2d');
+                let img = new Image();
+                img.src = imgElement.src;
+                img.onload = function() {
+                    canvas.width = img.width;
+                    canvas.height = img.height;
+                    ctx.drawImage(img, 0, 0);
+                    document.getElementById('downloadBtn').href = canvas.toDataURL('image/png');
+                }
+            }, 100);
+            document.getElementById('resultBox').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
