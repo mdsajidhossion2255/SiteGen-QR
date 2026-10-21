@@ -26,7 +26,8 @@
         .result-box { margin-top: 20px; text-align: center; display: none; }
         #qrcode { background: #fff; padding: 12px; display: inline-block; border-radius: 6px; margin-bottom: 12px; }
         #qrcode img { display: block; margin: 0 auto; width: 200px; height: 200px; }
-        .download-btn { display: inline-block; padding: 8px 16px; background: #10b981; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.85rem; }
+        .download-btn { display: inline-block; padding: 8px 16px; background: #10b981; color: #fff; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 0.85rem; cursor: pointer; border: none; }
+        .download-btn:hover { background: #059669; }
         .about-section { display: none; padding: 20px; text-align: center; max-width: 500px; margin: auto; }
         .about-section h2 { color: #38bdf8; margin-bottom: 15px; }
         .about-section p { color: #94a3b8; font-size: 0.95rem; line-height: 1.5; }
@@ -56,7 +57,7 @@
             <div class="result-box" id="resultBox">
                 <div id="qrcode"></div>
                 <br>
-                <a id="downloadBtn" class="download-btn" href="#" target="_blank" download="qrcode.png">Download QR Code</a>
+                <button class="download-btn" onclick="downloadQR()">Download QR Code</button>
             </div>
         </div>
         <div class="about-section" id="aboutPage">
@@ -66,6 +67,8 @@
     </div>
     <script>
         let currentType = 'url';
+        let currentQrUrl = '';
+
         function switchPage(page) {
             if(page === 'home') {
                 document.getElementById('homePage').style.display = 'block';
@@ -79,6 +82,7 @@
                 document.getElementById('navHome').classList.remove('active');
             }
         }
+
         function switchTab(type, btn) {
             currentType = type;
             document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -101,6 +105,7 @@
             input.value = '';
             document.getElementById('resultBox').style.display = 'none';
         }
+
         function generateQR() {
             let val = document.getElementById('userInput').value.trim();
             if (!val) { alert('Please fill in the input field!'); return; }
@@ -115,15 +120,30 @@
             }
             
             let encodedData = encodeURIComponent(finalData);
-            let qrApiUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodedData}`;
+            currentQrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodedData}`;
             
             let qrContainer = document.getElementById('qrcode');
-            qrContainer.innerHTML = `<img src="${qrApiUrl}" alt="QR Code">`;
-            
-            let downloadBtn = document.getElementById('downloadBtn');
-            downloadBtn.href = qrApiUrl;
-            
+            qrContainer.innerHTML = `<img src="${currentQrUrl}" alt="QR Code">`;
             document.getElementById('resultBox').style.display = 'block';
+        }
+
+        async function downloadQR() {
+            if (!currentQrUrl) return;
+            try {
+                let response = await fetch(currentQrUrl);
+                let blob = await response.blob();
+                let blobUrl = URL.createObjectURL(blob);
+                let a = document.createElement('a');
+                a.href = blobUrl;
+                a.download = 'qrcode.png';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(blobUrl);
+            } catch (err) {
+                // Fallback if fetch fails due to CORS
+                window.open(currentQrUrl, '_blank');
+            }
         }
     </script>
 </body>
